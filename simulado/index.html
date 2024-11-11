@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado de Português 8º Ano</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Simulado de Português - 8º Ano</h1>
+        <button id="gerar-questoes">Gerar Questões</button>
+        <form id="simulado-form">
+            <div id="questoes"></div>
+            <button type="button" id="finalizar-simulado" style="display: none;">Finalizar Simulado</button>
+            <button type="button" id="resetar-simulado" style="display: none;">Resetar Simulado</button>
+        </form>
+        <div id="resultado"></div>
+    </div>
+</body>
+</html>
+
+<script>
+    const questoesPorMateria = {
+        'Análise sintática e morfologia': [
+            { pergunta: 'Qual é a função sintática do termo destacado em "João, o aluno, está estudando."?', opcoes: ['Sujeito', 'Aposto', 'Predicado', 'Adjunto adnominal'], correta: 'Aposto' },
+            { pergunta: 'Classifique a palavra "livro" em "Eu comprei um livro novo."', opcoes: ['Adjetivo', 'Verbo', 'Substantivo', 'Pronome'], correta: 'Substantivo' },
+            { pergunta: 'Qual é a função sintática do termo destacado em "Os alunos entregaram o trabalho."?', opcoes: ['Sujeito', 'Objeto direto', 'Predicado', 'Adjunto adnominal'], correta: 'Objeto direto' },
+            { pergunta: 'Qual é a classificação morfológica da palavra "rapidamente"?', opcoes: ['Substantivo', 'Verbo', 'Advérbio', 'Adjetivo'], correta: 'Advérbio' }
+        ],
+        'Vozes verbais': [
+            { pergunta: 'Qual é a voz verbal da frase: "A carta foi escrita por Maria."?', opcoes: ['Voz ativa', 'Voz passiva', 'Voz reflexiva', 'Voz média'], correta: 'Voz passiva' },
+            { pergunta: 'Transforme a frase em voz passiva: "Pedro comeu a torta."', opcoes: ['A torta foi comida por Pedro.', 'Pedro foi comido pela torta.', 'A torta comeu Pedro.', 'A torta era para Pedro.'], correta: 'A torta foi comida por Pedro.' },
+            { pergunta: 'Qual é a voz verbal da frase: "João machucou-se durante o treino."?', opcoes: ['Voz ativa', 'Voz passiva', 'Voz reflexiva'], correta: 'Voz reflexiva' },
+            { pergunta: 'Identifique a voz verbal: "O filme foi assistido por todos."', opcoes: ['Voz ativa', 'Voz passiva', 'Voz reflexiva'], correta: 'Voz passiva' }
+        ],
+        'Verbos': [
+            { pergunta: 'Qual é o modo verbal da frase: "Se eu pudesse, ajudaria você."?', opcoes: ['Indicativo', 'Imperativo', 'Subjuntivo'], correta: 'Subjuntivo' },
+            { pergunta: 'Qual é o tempo verbal da frase: "Eu estudarei amanhã."?', opcoes: ['Presente', 'Pretérito perfeito', 'Futuro do presente', 'Imperativo'], correta: 'Futuro do presente' },
+            { pergunta: 'Classifique o verbo na frase: "Ele tinha terminado o trabalho."', opcoes: ['Presente', 'Pretérito mais-que-perfeito', 'Pretérito perfeito composto', 'Pretérito imperfeito'], correta: 'Pretérito mais-que-perfeito' },
+            { pergunta: 'Qual é o modo verbal da frase: "Estude para que você passe no exame."?', opcoes: ['Indicativo', 'Subjuntivo', 'Imperativo'], correta: 'Subjuntivo' }
+        ],
+        'Emprego da vírgula': [
+            { pergunta: 'Assinale a alternativa em que o uso da vírgula está correto:', opcoes: ['Não gostei do filme, porém fui assistir.', 'Não gostei do filme porém, fui assistir.'], correta: 'Não gostei do filme, porém fui assistir.' },
+            { pergunta: 'Onde deve ser colocada a vírgula: "Depois do jantar vamos ao cinema se você quiser."?', opcoes: ['Depois do jantar, vamos ao cinema, se você quiser.', 'Depois, do jantar vamos ao cinema se você quiser.', 'Depois do jantar vamos ao, cinema se você quiser.'], correta: 'Depois do jantar, vamos ao cinema, se você quiser.' },
+            { pergunta: 'Identifique o uso correto da vírgula na frase: "Maria que é minha amiga chegou."', opcoes: ['Maria, que é minha amiga, chegou.', 'Maria que é, minha amiga chegou.', 'Maria, que, é minha amiga chegou.'], correta: 'Maria, que é minha amiga, chegou.' },
+            { pergunta: 'Assinale a alternativa onde o uso da vírgula está incorreto:', opcoes: ['Fui ao mercado, e comprei frutas.', 'Fui ao mercado e comprei frutas.'], correta: 'Fui ao mercado, e comprei frutas.' }
+        ],
+        'Período simples e composto': [
+            { pergunta: 'Qual das frases a seguir é um período composto?', opcoes: ['Estudei a lição de casa.', 'Ele estudou porque queria passar na prova.'], correta: 'Ele estudou porque queria passar na prova.' },
+            { pergunta: 'Classifique a frase: "Não fui à festa, pois estava cansado."', opcoes: ['Período simples', 'Período composto'], correta: 'Período composto' },
+            { pergunta: 'Qual das frases é um período simples?', opcoes: ['João correu muito e chegou cedo.', 'Ana saiu.'], correta: 'Ana saiu.' },
+            { pergunta: 'Qual é a classificação da frase: "Quando ele chegou, todos se levantaram."?', opcoes: ['Período simples', 'Período composto'], correta: 'Período composto' }
+        ],
+        'Conjunções: Coordenadoras e subordinativas': [
+            { pergunta: 'Qual é o tipo de conjunção na frase: "Eu fui, mas ele não estava lá."?', opcoes: ['Coordenativa adversativa', 'Subordinativa causal', 'Coordenativa aditiva'], correta: 'Coordenativa adversativa' },
+            { pergunta: 'Qual é o tipo de conjunção na frase: "Ele estudou para que passasse no exame."?', opcoes: ['Coordenativa explicativa', 'Subordinativa final', 'Coordenativa adversativa'], correta: 'Subordinativa final' },
+            { pergunta: 'Identifique a conjunção coordenativa: "Não só estudei, mas também pratiquei."', opcoes: ['Aditiva', 'Causal', 'Consecutiva'], correta: 'Aditiva' },
+            { pergunta: 'Qual é o tipo de conjunção na frase: "Ele não foi à escola porque estava doente."?', opcoes: ['Subordinativa causal', 'Coordenativa adversativa', 'Subordinativa concessiva'], correta: 'Subordinativa causal' }
+        ]
+    };
+
+    let questoesSelecionadas = [];
+
+    document.getElementById('gerar-questoes').addEventListener('click', gerarQuestoes);
+    document.getElementById('finalizar-simulado').addEventListener('click', finalizarSimulado);
+    document.getElementById('resetar-simulado').addEventListener('click', resetarSimulado);
+
+    function gerarQuestoes() {
+        const questoesContainer = document.getElementById('questoes');
+        questoesContainer.innerHTML = '';
+        questoesSelecionadas = [];
+
+        Object.keys(questoesPorMateria).forEach(materia => {
+            const questoes = questoesPorMateria[materia];
+            const questao = questoes[Math.floor(Math.random() * questoes.length)];
+            questoesSelecionadas.push(questao);
+
+            const questaoDiv = document.createElement('div');
+            questaoDiv.className = 'questao';
+            questaoDiv.innerHTML = `
+                <p>${questao.pergunta}</p>
+                ${questao.opcoes.map(opcao => `
+                    <label>
+                        <input type="radio" name="questao-${questoesSelecionadas.length - 1}" value="${opcao}">
+                        ${opcao}
+                    </label><br>
+                `).join('')}
+            `;
+            questoesContainer.appendChild(questaoDiv);
+        });
+
+        document.getElementById('finalizar-simulado').style.display = 'block';
+        document.getElementById('resetar-simulado').style.display = 'none';
+        document.getElementById('resultado').innerHTML = '';
+    }
+
+    function finalizarSimulado() {
+        const resultadoContainer = document.getElementById('resultado');
+        const inputs = document.querySelectorAll('input[type="radio"]:checked');
+        let acertos = 0;
+        let total = questoesSelecionadas.length;
+
+        resultadoContainer.innerHTML = '';
+
+        if (inputs.length === 0) {
+            resultadoContainer.innerHTML = '<p>Você não respondeu nenhuma questão. Por favor, responda antes de finalizar.</p>';
+            return;
+        }
+
+        questoesSelecionadas.forEach((questao, index) => {
+            const respostaSelecionada = Array.from(inputs).find(input => input.name === `questao-${index}`)?.value;
+
+            if (respostaSelecionada) {
+                if (respostaSelecionada === questao.correta) {
+                    acertos++;
+                } else {
+                    resultadoContainer.innerHTML += `<p>Você errou a questão: "${questao.pergunta}". Resposta correta: <strong>${questao.correta}</strong>. Sua resposta: <strong>${respostaSelecionada}</strong></p>`;
+                }
+            } else {
+                resultadoContainer.innerHTML += `<p>Você não respondeu a questão: "${questao.pergunta}".</p>`;
+            }
+        });
+
+        resultadoContainer.innerHTML = `<h2>Resultado: ${acertos} de ${total} acertos</h2>` + resultadoContainer.innerHTML;
+        document.getElementById('finalizar-simulado').style.display = 'none';
+        document.getElementById('resetar-simulado').style.display = 'block';
+    }
+
+    function resetarSimulado() {
+        document.getElementById('questoes').innerHTML = '';
+        document.getElementById('resultado').innerHTML = '';
+        document.getElementById('finalizar-simulado').style.display = 'none';
+        document.getElementById('resetar-simulado').style.display = 'none';
+    }
+</script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        color: #333;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .questao {
+        margin: 20px 0;
+        text-align: left;
+    }
+
+    #resultado {
+        margin-top: 20px;
+        text-align: left;
+    }
+</style>
